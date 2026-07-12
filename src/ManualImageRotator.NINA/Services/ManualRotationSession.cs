@@ -144,9 +144,9 @@ namespace ManualImageRotator.NINA.Services {
         public double TargetAngle { get; set; }
         public double InitialAngle { get; set; }
         public double ToleranceDegrees { get; set; } = 0.25;
-        public double ExposureSeconds { get; set; } = 2.0;
+        public double ExposureSeconds { get; set; } = 3.0;
         public double MinimumQuality { get; set; } = 0.35;
-        public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(3);
+        public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(3.5);
     }
 
     public sealed class ManualRotationState {

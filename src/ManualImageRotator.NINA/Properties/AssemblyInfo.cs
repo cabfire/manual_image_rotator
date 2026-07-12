@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Manual Image Rotator")]
 [assembly: AssemblyDescription("Guided manual camera rotation for N.I.N.A. using live image-based field rotation measurements.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Fabri")]
+[assembly: AssemblyCompany("Fabrice Houvet")]
 [assembly: AssemblyProduct("Manual Image Rotator")]
 [assembly: AssemblyCopyright("Copyright 2026")]
 [assembly: AssemblyTrademark("")]

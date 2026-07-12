@@ -27,7 +27,8 @@ using System.Runtime.InteropServices;
     "Detection zone\n\n" +
     "The plugin detects stars in a central annular zone of the image. The outer radius is half of the shortest image side, " +
     "while the central area can be excluded to avoid unstable stars near the rotation center. Candidate stars are sorted by brightness, " +
-    "then filtered so retained stars remain separated from each other. This helps avoid selecting several local maxima from the same bright star.")]
+    "then filtered so retained stars remain separated from each other. This helps avoid selecting several local maxima from the same bright star.\n\n" +
+    "![Annular detection zone](https://raw.githubusercontent.com/cabfire/manual%5Fimage%5Frotator/main/docs/images/annular%5Fdetection%5Fzone%5Fplugin.png)")]
 
 [assembly: ComVisible(false)]
 [assembly: Guid("d50ae298-63e4-4e95-9f7d-ea5d0ba8d21b")]

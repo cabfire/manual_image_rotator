@@ -11,9 +11,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyMetadata("License", "MIT")]
 [assembly: AssemblyMetadata("LicenseURL", "")]
-[assembly: AssemblyMetadata("Homepage", "")]
-[assembly: AssemblyMetadata("Repository", "")]
-[assembly: AssemblyMetadata("ChangelogURL", "")]
+[assembly: AssemblyMetadata("Homepage", "https://github.com/cabfire/manual_image_rotator")]
+[assembly: AssemblyMetadata("Repository", "https://github.com/cabfire/manual_image_rotator")]
+[assembly: AssemblyMetadata("ChangelogURL", "https://github.com/cabfire/manual_image_rotator/commits/main")]
+[assembly: AssemblyMetadata("FeaturedImageURL", "https://raw.githubusercontent.com/cabfire/manual_image_rotator/main/docs/images/manual-image-rotator-logo.png")]
 [assembly: AssemblyMetadata("Tags", "rotator,manual,image-rotation")]
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.0")]
 [assembly: AssemblyMetadata("LongDescription",

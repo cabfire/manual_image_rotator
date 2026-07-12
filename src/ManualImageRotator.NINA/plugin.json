@@ -1,0 +1,12 @@
+{
+  "Name": "Manual Image Rotator",
+  "AssemblyName": "ManualImageRotator.NINA.dll",
+  "TypeName": "ManualImageRotator.NINA.ManualImageRotatorPlugin",
+  "Description": "A virtual rotator for N.I.N.A. that helps you manually rotate your camera with live image-based feedback. It detects stars, measures field rotation, and guides you to the target angle without requiring a motorized rotator.",
+  "Author": "Fabri",
+  "Version": "0.1.0.0",
+  "MinimumNINAVersion": "3.2.0.9001",
+  "Tags": ["rotator", "manual", "image-rotation"],
+  "License": "MIT",
+  "Repository": ""
+}

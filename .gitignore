@@ -1,0 +1,12 @@
+bin/
+obj/
+packages/
+.vs/
+.vscode/
+.agents/
+__pycache__/
+*.user
+*.suo
+*.zip
+*.log
+*.tmp

@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>ManualImageRotator.NINA</AssemblyName>
+    <RootNamespace>ManualImageRotator.NINA</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**\*</DefaultItemExcludes>
+    <NinaInstallDir>C:\Program Files\N.I.N.A. - Nighttime Imaging 'N' Astronomy</NinaInstallDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="NINA.Core">
+      <HintPath>$(NinaInstallDir)\NINA.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Equipment">
+      <HintPath>$(NinaInstallDir)\NINA.Equipment.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Image">
+      <HintPath>$(NinaInstallDir)\NINA.Image.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Plugin">
+      <HintPath>$(NinaInstallDir)\NINA.Plugin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="NINA.Profile">
+      <HintPath>$(NinaInstallDir)\NINA.Profile.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition">
+      <HintPath>$(NinaInstallDir)\System.ComponentModel.Composition.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="CommunityToolkit.Mvvm">
+      <HintPath>$(NinaInstallDir)\CommunityToolkit.Mvvm.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

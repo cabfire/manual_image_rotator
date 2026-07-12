@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="backgroundGlow" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#252a33"/>
+      <stop offset="62%" stop-color="#15181d"/>
+      <stop offset="100%" stop-color="#0d0f13"/>
+    </radialGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="blueGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#2f7fff" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="128" fill="url(#backgroundGlow)"/>
+
+  <g opacity="0.7">
+    <circle cx="512" cy="512" r="286" fill="none" stroke="#3a404b" stroke-width="4"/>
+    <circle cx="512" cy="512" r="184" fill="none" stroke="#4b5260" stroke-width="5" stroke-dasharray="18 20"/>
+    <line x1="512" y1="210" x2="512" y2="284" stroke="#4b5260" stroke-width="5" stroke-linecap="round"/>
+    <line x1="512" y1="740" x2="512" y2="814" stroke="#4b5260" stroke-width="5" stroke-linecap="round"/>
+    <line x1="210" y1="512" x2="284" y2="512" stroke="#4b5260" stroke-width="5" stroke-linecap="round"/>
+    <line x1="740" y1="512" x2="814" y2="512" stroke="#4b5260" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(512 512) rotate(-30)" filter="url(#softShadow)">
+    <rect x="-158" y="-214" width="316" height="428" rx="14" fill="#1a1d22" stroke="#d9dce3" stroke-width="14"/>
+    <rect x="-126" y="-176" width="252" height="352" rx="8" fill="#15181d" stroke="#727984" stroke-width="5"/>
+    <path d="M -132 -214 L -158 -214 L -158 -188" fill="none" stroke="#eef0f5" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 132 -214 L 158 -214 L 158 -188" fill="none" stroke="#eef0f5" stroke-width="10" stroke-linecap="round"/>
+    <path d="M -132 214 L -158 214 L -158 188" fill="none" stroke="#eef0f5" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 132 214 L 158 214 L 158 188" fill="none" stroke="#eef0f5" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(512 512) rotate(-30)" filter="url(#blueGlow)">
+    <line x1="0" y1="-238" x2="0" y2="238" stroke="#126dff" stroke-width="34" stroke-linecap="square"/>
+    <line x1="-28" y1="-238" x2="28" y2="-238" stroke="#126dff" stroke-width="18" stroke-linecap="square"/>
+    <line x1="-28" y1="238" x2="28" y2="238" stroke="#126dff" stroke-width="18" stroke-linecap="square"/>
+  </g>
+
+  <g fill="#f4f6fb">
+    <circle cx="327" cy="293" r="7"/>
+    <circle cx="689" cy="322" r="5"/>
+    <circle cx="721" cy="674" r="7"/>
+    <circle cx="303" cy="690" r="5"/>
+    <circle cx="238" cy="462" r="4"/>
+    <circle cx="794" cy="498" r="4"/>
+  </g>
+</svg>

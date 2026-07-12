@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'ManualImageRotator.NINA.NINA3'">
+    <BaseIntermediateOutputPath>obj\NINA3\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>obj\NINA3\</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+</Project>

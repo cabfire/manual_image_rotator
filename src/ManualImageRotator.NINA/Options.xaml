@@ -1,0 +1,70 @@
+<ResourceDictionary
+    x:Class="ManualImageRotator.NINA.Options"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:ManualImageRotator.NINA">
+
+    <Style x:Key="ManualImageRotatorOptionLabel" TargetType="{x:Type TextBlock}">
+        <Setter Property="Foreground" Value="#F4F4F6" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,4,12,4" />
+    </Style>
+
+    <Style x:Key="ManualImageRotatorOptionInput" TargetType="{x:Type TextBox}">
+        <Setter Property="Foreground" Value="#F4F4F6" />
+        <Setter Property="Background" Value="#26282D" />
+        <Setter Property="BorderBrush" Value="#383B42" />
+        <Setter Property="Margin" Value="0,4,0,4" />
+        <Setter Property="MinHeight" Value="30" />
+    </Style>
+
+    <!-- NINA looks up plugin options with the "{AssemblyTitle}_Options" key. -->
+    <DataTemplate x:Key="Manual Image Rotator_Options"
+                  DataType="{x:Type local:ManualImageRotatorPlugin}">
+        <StackPanel MaxWidth="760" HorizontalAlignment="Left" Margin="0,8,0,20">
+            <TextBlock Text="Manual Image Rotator - Settings"
+                       Foreground="#F4F4F6"
+                       FontWeight="Bold"
+                       FontSize="15"
+                       Margin="0,0,0,8" />
+
+            <TextBlock Text="Capture"
+                       Foreground="#F4F4F6"
+                       FontSize="22"
+                       Margin="0,0,0,8" />
+
+            <Grid Margin="28,0,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="170" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Exposure seconds:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ExposureSeconds, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Refresh interval seconds:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RefreshIntervalSeconds, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Tolerance degrees:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ToleranceDegrees, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Central exclusion (%):" Style="{StaticResource ManualImageRotatorOptionLabel}" />
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CentralExclusionPercent, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Detected stars:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding DetectedStars, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
+
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Debug logging:" Style="{StaticResource ManualImageRotatorOptionLabel}" Margin="0,8,12,4" />
+                <CheckBox Grid.Row="5" Grid.Column="1" IsChecked="{Binding DebugLogging, UpdateSourceTrigger=PropertyChanged}" Margin="0,8,0,4" />
+            </Grid>
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

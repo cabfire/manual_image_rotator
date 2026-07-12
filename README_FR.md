@@ -157,7 +157,7 @@ Valeurs actuelles :
 
 | Parametre | Defaut | Bornes |
 | --- | ---: | ---: |
-| ExposureSeconds | 0.05 s | 0.001 a 600 s |
+| ExposureSeconds | 3.0 s | 0.001 a 600 s |
 | RefreshIntervalSeconds | 1.0 s | 0.1 a 600 s |
 | ToleranceDegrees | 0.25 deg | 0.01 a 10 deg |
 | CentralExclusionPercent | 20% | 0 a 80% |

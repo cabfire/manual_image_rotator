@@ -159,7 +159,7 @@ Current values:
 
 | Setting | Default | Bounds |
 | --- | ---: | ---: |
-| ExposureSeconds | 0.05 s | 0.001 to 600 s |
+| ExposureSeconds | 3.0 s | 0.001 to 600 s |
 | RefreshIntervalSeconds | 1.0 s | 0.1 to 600 s |
 | ToleranceDegrees | 0.25 deg | 0.01 to 10 deg |
 | CentralExclusionPercent | 20% | 0 to 80% |

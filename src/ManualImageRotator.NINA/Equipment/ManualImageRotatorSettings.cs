@@ -5,7 +5,7 @@ using System.IO;
 namespace ManualImageRotator.NINA.Equipment {
     public sealed class ManualImageRotatorSettings {
         private const double DefaultExposureSeconds = 3.0;
-        private const double DefaultRefreshIntervalSeconds = 3.5;
+        private const double DefaultRefreshIntervalSeconds = 1.0;
         private const double DefaultToleranceDegrees = 0.25;
         private const double DefaultCentralExclusionPercent = 20.0;
         private const int DefaultDetectedStars = 16;

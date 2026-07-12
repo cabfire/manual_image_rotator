@@ -4,6 +4,28 @@ Manual Image Rotator est un plugin N.I.N.A. qui expose un rotateur virtuel pour 
 
 Le plugin ne pilote aucun moteur. Il utilise la camera deja connectee a N.I.N.A., capture regulierement des images, mesure la rotation du champ par rapport a une image de reference, puis met a jour la position du rotateur virtuel. Cote N.I.N.A., il se comporte donc comme un rotateur classique : `Move mechanical position` reste actif pendant que l'utilisateur tourne physiquement la camera, puis se termine quand la cible est atteinte.
 
+## Telechargement
+
+Les ZIP precompiles sont prevus pour etre publies depuis la page GitHub Releases :
+
+```text
+https://github.com/cabfire/manual_image_rotator/releases
+```
+
+Telecharger le dernier `ManualImageRotator.NINA-*.zip`, fermer N.I.N.A., puis l'extraire dans :
+
+```text
+%LOCALAPPDATA%\NINA\Plugins\3.0.0
+```
+
+Apres extraction, le plugin doit se trouver dans :
+
+```text
+%LOCALAPPDATA%\NINA\Plugins\3.0.0\Manual Image Rotator
+```
+
+Relancer N.I.N.A., puis selectionner `Manual Image Rotator` dans l'equipement `Rotator`.
+
 ## Fonctionnement utilisateur
 
 1. Connecter la camera dans N.I.N.A.
@@ -187,7 +209,9 @@ Un warning `System.Text.Json` peut apparaitre a cause de references N.I.N.A./.NE
 
 ## Installation locale dans N.I.N.A.
 
-Fermer N.I.N.A., puis copier les fichiers generes vers le dossier plugin :
+Pour une utilisation normale, preferer le ZIP publie dans GitHub Releases.
+
+Pour le developpement local, fermer N.I.N.A., puis copier les fichiers generes vers le dossier plugin :
 
 ```powershell
 $target = "$env:LOCALAPPDATA\NINA\Plugins\3.0.0\Manual Image Rotator"
@@ -195,10 +219,22 @@ New-Item -ItemType Directory -Force -Path $target
 Copy-Item .\src\ManualImageRotator.NINA\bin\Debug\net8.0-windows\ManualImageRotator.NINA.dll -Destination $target -Force
 Copy-Item .\src\ManualImageRotator.NINA\bin\Debug\net8.0-windows\ManualImageRotator.NINA.pdb -Destination $target -Force
 Copy-Item .\src\ManualImageRotator.NINA\bin\Debug\net8.0-windows\ManualImageRotator.NINA.deps.json -Destination $target -Force
-Copy-Item .\src\ManualImageRotator.NINA\bin\Debug\net8.0-windows\plugin.json -Destination $target -Force
 ```
 
 Relancer ensuite N.I.N.A. et selectionner `Manual Image Rotator` dans l'equipement `Rotator`.
+
+## ZIP de release
+
+Le ZIP d'installation manuelle doit contenir un dossier racine `Manual Image Rotator` avec :
+
+```text
+Manual Image Rotator/
+  ManualImageRotator.NINA.dll
+  ManualImageRotator.NINA.deps.json
+  ManualImageRotator.NINA.pdb
+```
+
+Le fichier `.pdb` est optionnel pour l'execution, mais utile pour diagnostiquer les logs N.I.N.A.
 
 ## Tests hors N.I.N.A.
 

@@ -6,6 +6,28 @@ The plugin does not drive any motor. It uses the camera already connected in N.I
 
 The French documentation is available in `README_FR.md`.
 
+## Download
+
+Prebuilt ZIP packages are intended to be published from the GitHub Releases page:
+
+```text
+https://github.com/cabfire/manual_image_rotator/releases
+```
+
+Download the latest `ManualImageRotator.NINA-*.zip`, close N.I.N.A., then extract it into:
+
+```text
+%LOCALAPPDATA%\NINA\Plugins\3.0.0
+```
+
+After extraction, the plugin should be installed in:
+
+```text
+%LOCALAPPDATA%\NINA\Plugins\3.0.0\Manual Image Rotator
+```
+
+Restart N.I.N.A., then select `Manual Image Rotator` in the `Rotator` equipment.
+
 ## User Workflow
 
 1. Connect the camera in N.I.N.A.
@@ -189,7 +211,9 @@ A `System.Text.Json` warning may appear because of different N.I.N.A./.NET refer
 
 ## Local Installation in N.I.N.A.
 
-Close N.I.N.A., then copy the generated files to the plugin folder:
+For normal use, prefer the ZIP from the GitHub Releases page.
+
+For local development, close N.I.N.A., then copy the generated files to the plugin folder:
 
 ```powershell
 $target = "$env:LOCALAPPDATA\NINA\Plugins\3.0.0\Manual Image Rotator"
@@ -197,10 +221,22 @@ New-Item -ItemType Directory -Force -Path $target
 Copy-Item .\src\ManualImageRotator.NINA\bin\Debug\net8.0-windows\ManualImageRotator.NINA.dll -Destination $target -Force
 Copy-Item .\src\ManualImageRotator.NINA\bin\Debug\net8.0-windows\ManualImageRotator.NINA.pdb -Destination $target -Force
 Copy-Item .\src\ManualImageRotator.NINA\bin\Debug\net8.0-windows\ManualImageRotator.NINA.deps.json -Destination $target -Force
-Copy-Item .\src\ManualImageRotator.NINA\bin\Debug\net8.0-windows\plugin.json -Destination $target -Force
 ```
 
 Then restart N.I.N.A. and select `Manual Image Rotator` in the `Rotator` equipment.
+
+## Release ZIP
+
+The manual installation ZIP should contain a top-level `Manual Image Rotator` folder with:
+
+```text
+Manual Image Rotator/
+  ManualImageRotator.NINA.dll
+  ManualImageRotator.NINA.deps.json
+  ManualImageRotator.NINA.pdb
+```
+
+The `.pdb` file is optional for runtime, but useful when diagnosing N.I.N.A. logs.
 
 ## Tests Outside N.I.N.A.
 

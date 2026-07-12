@@ -28,12 +28,7 @@
                        FontSize="15"
                        Margin="0,0,0,8" />
 
-            <TextBlock Text="Capture"
-                       Foreground="#F4F4F6"
-                       FontSize="22"
-                       Margin="0,0,0,8" />
-
-            <Grid Margin="28,0,0,0">
+            <Grid Margin="28,8,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="250" />
                     <ColumnDefinition Width="170" />

@@ -18,12 +18,12 @@ namespace ManualImageRotator.NINA.Imaging {
             var currentStars = detector.Detect(current);
 
             if (referenceStars.Count < 3 || currentStars.Count < 3) {
-                return Poor(referenceStars, currentStars);
+                return Poor(current, referenceStars, currentStars);
             }
 
             var match = MatchBySimilarity(referenceStars, currentStars);
             if (match.MatchedStars < 3) {
-                return Poor(referenceStars, currentStars);
+                return Poor(current, referenceStars, currentStars);
             }
 
             var quality = Math.Max(0.0, Math.Min(1.0, match.MatchedStars / 10.0)) *
@@ -37,6 +37,8 @@ namespace ManualImageRotator.NINA.Imaging {
                 TranslationX = match.TranslationX,
                 TranslationY = match.TranslationY,
                 Scale = match.Scale,
+                FrameWidth = current.Width,
+                FrameHeight = current.Height,
                 ReferenceStars = referenceStars,
                 CurrentStars = currentStars
             };
@@ -176,13 +178,15 @@ namespace ManualImageRotator.NINA.Imaging {
             return pairs;
         }
 
-        private static RotationMeasurement Poor(IReadOnlyList<StarCentroid> referenceStars, IReadOnlyList<StarCentroid> currentStars) {
+        private static RotationMeasurement Poor(RotationFrame current, IReadOnlyList<StarCentroid> referenceStars, IReadOnlyList<StarCentroid> currentStars) {
             return new RotationMeasurement {
                 AngleDegrees = 0,
                 MatchedStars = 0,
                 RmsPixels = double.PositiveInfinity,
                 Quality = 0,
                 Scale = 1.0,
+                FrameWidth = current.Width,
+                FrameHeight = current.Height,
                 ReferenceStars = referenceStars,
                 CurrentStars = currentStars
             };

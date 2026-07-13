@@ -33,6 +33,8 @@ namespace ManualImageRotator.NINA.Imaging {
         public double TranslationX { get; set; }
         public double TranslationY { get; set; }
         public double Scale { get; set; } = 1.0;
+        public int FrameWidth { get; set; }
+        public int FrameHeight { get; set; }
         public IReadOnlyList<StarCentroid> ReferenceStars { get; set; }
         public IReadOnlyList<StarCentroid> CurrentStars { get; set; }
     }

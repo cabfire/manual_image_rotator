@@ -127,6 +127,10 @@ namespace ManualImageRotator.NINA.Services {
                 TranslationX = measurement.TranslationX,
                 TranslationY = measurement.TranslationY,
                 Scale = measurement.Scale,
+                FrameWidth = measurement.FrameWidth,
+                FrameHeight = measurement.FrameHeight,
+                CentralExclusionRatio = options.CentralExclusionRatio,
+                CurrentStars = measurement.CurrentStars,
                 Status = status
             });
         }
@@ -178,6 +182,7 @@ namespace ManualImageRotator.NINA.Services {
         public double MinimumQuality { get; set; } = 0.25;
         public int MinimumMatchedStars { get; set; } = 4;
         public double MaximumAngleJumpDegrees { get; set; } = 60.0;
+        public double CentralExclusionRatio { get; set; } = 0.20;
         public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(1);
     }
 
@@ -192,6 +197,10 @@ namespace ManualImageRotator.NINA.Services {
         public double TranslationX { get; set; }
         public double TranslationY { get; set; }
         public double Scale { get; set; } = 1.0;
+        public int FrameWidth { get; set; }
+        public int FrameHeight { get; set; }
+        public double CentralExclusionRatio { get; set; }
+        public System.Collections.Generic.IReadOnlyList<StarCentroid> CurrentStars { get; set; }
         public string Status { get; set; }
     }
 

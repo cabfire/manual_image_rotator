@@ -1,3 +1,4 @@
+using ManualImageRotator.NINA.Imaging;
 using ManualImageRotator.NINA.Services;
 using NINA.Core.Utility;
 using NINA.Equipment.Interfaces;
@@ -42,7 +43,7 @@ namespace ManualImageRotator.NINA.Equipment {
         public bool Connected => connected;
         public string Description => "Guided manual camera rotation using live image measurements.";
         public string DriverInfo => "Manual Image Rotator for N.I.N.A.";
-        public string DriverVersion => "0.2.0";
+        public string DriverVersion => "0.3.0";
         public IList<string> SupportedActions => new List<string>();
 
         public bool CanReverse => true;
@@ -198,6 +199,7 @@ namespace ManualImageRotator.NINA.Equipment {
                     MinimumQuality = settings.MinimumQuality,
                     MinimumMatchedStars = settings.MinimumMatchedStars,
                     MaximumAngleJumpDegrees = settings.MaximumAngleJumpDegrees,
+                    CentralExclusionRatio = settings.CentralExclusionPercent / 100.0,
                     RefreshInterval = settings.RefreshInterval
                 };
 
@@ -250,7 +252,11 @@ namespace ManualImageRotator.NINA.Equipment {
                 state.Quality,
                 state.TranslationX,
                 state.TranslationY,
-                state.Scale);
+                state.Scale,
+                state.FrameWidth,
+                state.FrameHeight,
+                state.CentralExclusionRatio,
+                state.CurrentStars);
         }
 
         private void SetMeasuredPosition(float value) {
@@ -381,7 +387,11 @@ namespace ManualImageRotator.NINA.Equipment {
                 double.NaN,
                 double.NaN,
                 double.NaN,
-                double.NaN);
+                double.NaN,
+                0,
+                0,
+                0,
+                null);
         }
 
         private void UpdateMoveWindow(
@@ -394,7 +404,11 @@ namespace ManualImageRotator.NINA.Equipment {
             double quality,
             double translationX,
             double translationY,
-            double scale) {
+            double scale,
+            int frameWidth,
+            int frameHeight,
+            double centralExclusionRatio,
+            IReadOnlyList<StarCentroid> currentStars) {
             var dispatcher = System.Windows.Application.Current?.Dispatcher;
             if (dispatcher == null) {
                 return;
@@ -411,7 +425,11 @@ namespace ManualImageRotator.NINA.Equipment {
                     quality,
                     translationX,
                     translationY,
-                    scale);
+                    scale,
+                    frameWidth,
+                    frameHeight,
+                    centralExclusionRatio,
+                    currentStars);
             }));
         }
 
@@ -438,6 +456,10 @@ namespace ManualImageRotator.NINA.Equipment {
             angle %= 360f;
             if (angle < 0f) {
                 angle += 360f;
+            }
+
+            if (Math.Abs(angle) < 0.0005f || Math.Abs(angle - 360f) < 0.0005f) {
+                return 0f;
             }
 
             return angle;

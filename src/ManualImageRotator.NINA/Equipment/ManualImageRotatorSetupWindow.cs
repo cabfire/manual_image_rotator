@@ -17,6 +17,9 @@ namespace ManualImageRotator.NINA.Equipment {
         private readonly TextBox toleranceDegreesTextBox;
         private readonly TextBox centralExclusionPercentTextBox;
         private readonly TextBox detectedStarsTextBox;
+        private readonly TextBox minimumQualityTextBox;
+        private readonly TextBox minimumMatchedStarsTextBox;
+        private readonly TextBox maximumAngleJumpDegreesTextBox;
         private readonly CheckBox debugLoggingCheckBox;
         private readonly ManualImageRotatorSettings settings;
         private readonly Action reinitCurrentPosition;
@@ -30,8 +33,8 @@ namespace ManualImageRotator.NINA.Equipment {
             this.reinitCurrentPosition = reinitCurrentPosition;
 
             Title = "Manual Image Rotator";
-            Width = 360;
-            Height = 420;
+            Width = 430;
+            Height = 560;
             ResizeMode = ResizeMode.NoResize;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             Background = BackgroundBrush;
@@ -48,9 +51,12 @@ namespace ManualImageRotator.NINA.Equipment {
             root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(170) });
+            root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
             root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
             exposureSecondsTextBox = AddField(
@@ -83,9 +89,27 @@ namespace ManualImageRotator.NINA.Equipment {
                 "Detected stars",
                 settings.DetectedStars.ToString(CultureInfo.InvariantCulture));
 
-            debugLoggingCheckBox = AddCheckBox(
+            minimumQualityTextBox = AddField(
                 root,
                 5,
+                "Minimum quality",
+                settings.MinimumQuality.ToString(CultureInfo.InvariantCulture));
+
+            minimumMatchedStarsTextBox = AddField(
+                root,
+                6,
+                "Minimum matched stars",
+                settings.MinimumMatchedStars.ToString(CultureInfo.InvariantCulture));
+
+            maximumAngleJumpDegreesTextBox = AddField(
+                root,
+                7,
+                "Maximum angle jump degrees",
+                settings.MaximumAngleJumpDegrees.ToString(CultureInfo.InvariantCulture));
+
+            debugLoggingCheckBox = AddCheckBox(
+                root,
+                8,
                 "Debug logging",
                 settings.DebugLogging);
 
@@ -99,7 +123,7 @@ namespace ManualImageRotator.NINA.Equipment {
                 Padding = new Thickness(8, 4, 8, 4)
             };
             reinitButton.Click += OnReinitCurrentPosition;
-            Grid.SetRow(reinitButton, 6);
+            Grid.SetRow(reinitButton, 9);
             Grid.SetColumnSpan(reinitButton, 2);
             root.Children.Add(reinitButton);
 
@@ -107,7 +131,7 @@ namespace ManualImageRotator.NINA.Equipment {
                 Orientation = Orientation.Horizontal,
                 HorizontalAlignment = HorizontalAlignment.Right
             };
-            Grid.SetRow(buttons, 8);
+            Grid.SetRow(buttons, 11);
             Grid.SetColumnSpan(buttons, 2);
 
             var okButton = new Button {
@@ -222,11 +246,32 @@ namespace ManualImageRotator.NINA.Equipment {
                 return;
             }
 
+            if (!TryParseQuality(minimumQualityTextBox.Text, out var minimumQuality)) {
+                MessageBox.Show(this, "Minimum quality must be a number between 0 and 1.", Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                minimumQualityTextBox.Focus();
+                return;
+            }
+
+            if (!TryParseDetectedStars(minimumMatchedStarsTextBox.Text, out var minimumMatchedStars)) {
+                MessageBox.Show(this, "Minimum matched stars must be an integer between 3 and 100.", Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                minimumMatchedStarsTextBox.Focus();
+                return;
+            }
+
+            if (!TryParseAngleJump(maximumAngleJumpDegreesTextBox.Text, out var maximumAngleJumpDegrees)) {
+                MessageBox.Show(this, "Maximum angle jump degrees must be a number between 1 and 180.", Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                maximumAngleJumpDegreesTextBox.Focus();
+                return;
+            }
+
             settings.ExposureSeconds = exposureSeconds;
             settings.RefreshIntervalSeconds = refreshIntervalSeconds;
             settings.ToleranceDegrees = toleranceDegrees;
             settings.CentralExclusionPercent = centralExclusionPercent;
             settings.DetectedStars = detectedStars;
+            settings.MinimumQuality = minimumQuality;
+            settings.MinimumMatchedStars = minimumMatchedStars;
+            settings.MaximumAngleJumpDegrees = maximumAngleJumpDegrees;
             settings.DebugLogging = debugLoggingCheckBox.IsChecked == true;
             settings.Save();
             DialogResult = true;
@@ -248,6 +293,18 @@ namespace ManualImageRotator.NINA.Equipment {
             return int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value)
                 && value >= 3
                 && value <= 100;
+        }
+
+        private static bool TryParseQuality(string text, out double value) {
+            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value)
+                && value >= 0
+                && value <= 1;
+        }
+
+        private static bool TryParseAngleJump(string text, out double value) {
+            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value)
+                && value >= 1
+                && value <= 180;
         }
 
         private void OnReinitCurrentPosition(object sender, RoutedEventArgs e) {

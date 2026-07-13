@@ -40,6 +40,9 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Exposure seconds:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
@@ -57,8 +60,17 @@
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Detected stars:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
                 <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding DetectedStars, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
 
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="Debug logging:" Style="{StaticResource ManualImageRotatorOptionLabel}" Margin="0,8,12,4" />
-                <CheckBox Grid.Row="5" Grid.Column="1" IsChecked="{Binding DebugLogging, UpdateSourceTrigger=PropertyChanged}" Margin="0,8,0,4" />
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Minimum quality:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
+                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding MinimumQuality, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
+
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Minimum matched stars:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
+                <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding MinimumMatchedStars, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
+
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="Maximum angle jump degrees:" Style="{StaticResource ManualImageRotatorOptionLabel}" />
+                <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding MaximumAngleJumpDegrees, UpdateSourceTrigger=LostFocus}" Style="{StaticResource ManualImageRotatorOptionInput}" />
+
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="Debug logging:" Style="{StaticResource ManualImageRotatorOptionLabel}" Margin="0,8,12,4" />
+                <CheckBox Grid.Row="8" Grid.Column="1" IsChecked="{Binding DebugLogging, UpdateSourceTrigger=PropertyChanged}" Margin="0,8,0,4" />
             </Grid>
         </StackPanel>
     </DataTemplate>

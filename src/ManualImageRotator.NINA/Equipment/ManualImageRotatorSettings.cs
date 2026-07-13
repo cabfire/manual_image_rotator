@@ -9,12 +9,18 @@ namespace ManualImageRotator.NINA.Equipment {
         private const double DefaultToleranceDegrees = 0.25;
         private const double DefaultCentralExclusionPercent = 20.0;
         private const int DefaultDetectedStars = 16;
+        private const double DefaultMinimumQuality = 0.25;
+        private const int DefaultMinimumMatchedStars = 4;
+        private const double DefaultMaximumAngleJumpDegrees = 60.0;
 
         public double ExposureSeconds { get; set; } = DefaultExposureSeconds;
         public double RefreshIntervalSeconds { get; set; } = DefaultRefreshIntervalSeconds;
         public double ToleranceDegrees { get; set; } = DefaultToleranceDegrees;
         public double CentralExclusionPercent { get; set; } = DefaultCentralExclusionPercent;
         public int DetectedStars { get; set; } = DefaultDetectedStars;
+        public double MinimumQuality { get; set; } = DefaultMinimumQuality;
+        public int MinimumMatchedStars { get; set; } = DefaultMinimumMatchedStars;
+        public double MaximumAngleJumpDegrees { get; set; } = DefaultMaximumAngleJumpDegrees;
         public bool Reverse { get; set; }
         public bool DebugLogging { get; set; }
 
@@ -54,6 +60,18 @@ namespace ManualImageRotator.NINA.Equipment {
                     if (int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)) {
                         settings.DetectedStars = value;
                     }
+                } else if (parts[0] == nameof(MinimumQuality)) {
+                    if (double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var value)) {
+                        settings.MinimumQuality = value;
+                    }
+                } else if (parts[0] == nameof(MinimumMatchedStars)) {
+                    if (int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)) {
+                        settings.MinimumMatchedStars = value;
+                    }
+                } else if (parts[0] == nameof(MaximumAngleJumpDegrees)) {
+                    if (double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var value)) {
+                        settings.MaximumAngleJumpDegrees = value;
+                    }
                 } else if (parts[0] == nameof(Reverse)) {
                     if (bool.TryParse(parts[1], out var value)) {
                         settings.Reverse = value;
@@ -78,6 +96,9 @@ namespace ManualImageRotator.NINA.Equipment {
                 $"{nameof(ToleranceDegrees)}={ToleranceDegrees.ToString(CultureInfo.InvariantCulture)}",
                 $"{nameof(CentralExclusionPercent)}={CentralExclusionPercent.ToString(CultureInfo.InvariantCulture)}",
                 $"{nameof(DetectedStars)}={DetectedStars.ToString(CultureInfo.InvariantCulture)}",
+                $"{nameof(MinimumQuality)}={MinimumQuality.ToString(CultureInfo.InvariantCulture)}",
+                $"{nameof(MinimumMatchedStars)}={MinimumMatchedStars.ToString(CultureInfo.InvariantCulture)}",
+                $"{nameof(MaximumAngleJumpDegrees)}={MaximumAngleJumpDegrees.ToString(CultureInfo.InvariantCulture)}",
                 $"{nameof(Reverse)}={Reverse}",
                 $"{nameof(DebugLogging)}={DebugLogging}"
             });
@@ -89,6 +110,9 @@ namespace ManualImageRotator.NINA.Equipment {
             ToleranceDegrees = Clamp(ToleranceDegrees, 0.01, 10.0);
             CentralExclusionPercent = Clamp(CentralExclusionPercent, 0.0, 80.0);
             DetectedStars = Math.Max(3, Math.Min(100, DetectedStars));
+            MinimumQuality = Clamp(MinimumQuality, 0.0, 1.0);
+            MinimumMatchedStars = Math.Max(3, Math.Min(DetectedStars, MinimumMatchedStars));
+            MaximumAngleJumpDegrees = Clamp(MaximumAngleJumpDegrees, 1.0, 180.0);
         }
 
         private static double Clamp(double value, double min, double max) {

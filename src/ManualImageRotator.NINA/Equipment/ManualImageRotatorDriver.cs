@@ -42,7 +42,7 @@ namespace ManualImageRotator.NINA.Equipment {
         public bool Connected => connected;
         public string Description => "Guided manual camera rotation using live image measurements.";
         public string DriverInfo => "Manual Image Rotator for N.I.N.A.";
-        public string DriverVersion => "0.1.0";
+        public string DriverVersion => "0.2.0";
         public IList<string> SupportedActions => new List<string>();
 
         public bool CanReverse => true;
@@ -179,7 +179,7 @@ namespace ManualImageRotator.NINA.Equipment {
             acceptCurrentPositionRequested = false;
             TargetPosition = targetPosition;
             IsMoving = true;
-            Logger.Info($"ManualImageRotator: move requested current={Position:0.000} target={TargetPosition:0.000} exposure={settings.ExposureSeconds:0.###}s refresh={settings.RefreshIntervalSeconds:0.###}s tolerance={settings.ToleranceDegrees:0.###} stars={settings.DetectedStars} exclusion={settings.CentralExclusionPercent:0.#}%");
+            Logger.Info($"ManualImageRotator: move requested current={Position:0.000} target={TargetPosition:0.000} exposure={settings.ExposureSeconds:0.###}s refresh={settings.RefreshIntervalSeconds:0.###}s tolerance={settings.ToleranceDegrees:0.###} stars={settings.DetectedStars} exclusion={settings.CentralExclusionPercent:0.#}% minQuality={settings.MinimumQuality:0.###} minMatched={settings.MinimumMatchedStars} maxJump={settings.MaximumAngleJumpDegrees:0.###}");
             ShowMoveWindow(Position, TargetPosition, "Capturing reference");
 
             moveTask = RunMoveAsync(TargetPosition, runCts);
@@ -195,6 +195,9 @@ namespace ManualImageRotator.NINA.Equipment {
                     InitialAngle = measuredPosition,
                     ToleranceDegrees = settings.ToleranceDegrees,
                     ExposureSeconds = settings.ExposureSeconds,
+                    MinimumQuality = settings.MinimumQuality,
+                    MinimumMatchedStars = settings.MinimumMatchedStars,
+                    MaximumAngleJumpDegrees = settings.MaximumAngleJumpDegrees,
                     RefreshInterval = settings.RefreshInterval
                 };
 

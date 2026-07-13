@@ -134,7 +134,19 @@ Each measurement produces:
 
 Quality is displayed in the guidance window as a visual confidence indicator. It does not block the measurement loop: medium quality can still be usable when the matched star count remains sufficient and the needle follows the movement correctly.
 
-### 5. Rotation Loop
+### 5. Frame Rejection
+
+Before a new measurement is allowed to update the rotator angle, it is checked against three rejection rules:
+
+- `MatchedStars < MinimumMatchedStars` rejects frames with too few reliable matches;
+- `Quality < MinimumQuality` rejects low-confidence transforms;
+- `AngleJump > MaximumAngleJumpDegrees` rejects sudden jumps from the last accepted angle.
+
+When a frame is rejected, the guidance window still displays its metrics and a status such as `Rejected - angle jump`, but the current angle and blue needle stay on the last accepted measurement. This avoids frightening 180-degree needle jumps caused by one bad exposure while still making the rejection visible.
+
+Accepted frames show `Status: Accepted` and update the current angle normally.
+
+### 6. Rotation Loop
 
 `ManualRotationSession`:
 
@@ -143,9 +155,10 @@ Quality is displayed in the guidance window as a visual confidence indicator. It
 3. measures the relative angle;
 4. computes `currentAngle = initialAngle + measuredRotation`;
 5. computes `delta = targetAngle - currentAngle`, normalized to `[-180 deg, +180 deg]`;
-6. publishes the state to the driver and UI window;
-7. completes if `abs(delta) <= tolerance`;
-8. waits for the configured interval, then loops again.
+6. rejects unstable frames or accepts the measurement;
+7. publishes the state to the driver and UI window;
+8. completes if `abs(delta) <= tolerance`;
+9. waits for the configured interval, then loops again.
 
 ## Settings
 
@@ -164,10 +177,14 @@ Current values:
 | ToleranceDegrees | 0.25 deg | 0.01 to 10 deg |
 | CentralExclusionPercent | 20% | 0 to 80% |
 | DetectedStars | 16 | 3 to 100 |
+| MinimumQuality | 0.25 | 0 to 1 |
+| MinimumMatchedStars | 4 | 3 to DetectedStars |
+| MaximumAngleJumpDegrees | 60 deg | 1 to 180 deg |
 | Reverse | false | true/false |
 | DebugLogging | false | true/false |
 
 `Reverse` is driven by N.I.N.A.'s native rotator toggle.
+`MinimumQuality`, `MinimumMatchedStars`, and `MaximumAngleJumpDegrees` reject unstable measurements before they update the displayed rotator angle.
 `DebugLogging` enables detailed capture, measurement, quality, and synchronization logs. It is disabled by default.
 
 ## Requirements

@@ -24,6 +24,10 @@ using System.Runtime.InteropServices;
     "The guidance window shows the current angle, the requested target angle, a live blue needle, the number of matched stars, " +
     "and a color-coded quality indicator. When the target is reached within the configured tolerance, N.I.N.A. can complete the move " +
     "like it would with a regular rotator.\n\n" +
+    "Frame rejection\n\n" +
+    "Each new frame is checked before it can update the displayed rotator angle. Frames can be rejected when they have too few matched stars, " +
+    "low measurement quality, or a sudden angle jump from the last accepted position. Rejected frames still display their metrics and status, " +
+    "but the current angle and blue needle stay on the last accepted measurement.\n\n" +
     "Detection zone\n\n" +
     "The plugin detects stars in a central annular zone of the image. The outer radius is half of the shortest image side, " +
     "while the central area can be excluded to avoid unstable stars near the rotation center. Candidate stars are sorted by brightness, " +
@@ -33,5 +37,5 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("d50ae298-63e4-4e95-9f7d-ea5d0ba8d21b")]
 
-[assembly: AssemblyVersion("0.1.0.0")]
-[assembly: AssemblyFileVersion("0.1.0.0")]
+[assembly: AssemblyVersion("0.2.0.0")]
+[assembly: AssemblyFileVersion("0.2.0.0")]

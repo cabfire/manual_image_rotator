@@ -56,7 +56,8 @@ namespace ManualImageRotator.NINA.Services {
                 logger.Info(
                     $"Session start target={options.TargetAngle:F3} initial={options.InitialAngle:F3} " +
                     $"tolerance={options.ToleranceDegrees:F3} exposure={options.ExposureSeconds:F3}s " +
-                    $"refresh={options.RefreshInterval.TotalSeconds:F3}s minQuality={options.MinimumQuality:F3}");
+                    $"refresh={options.RefreshInterval.TotalSeconds:F3}s minQuality={options.MinimumQuality:F3} " +
+                    $"minMatched={options.MinimumMatchedStars} maxJump={options.MaximumAngleJumpDegrees:F3}");
 
                 var reference = await imageSource.CaptureAsync(options.ExposureSeconds, ct);
                 logger.Info($"Reference frame captured width={reference.Width} height={reference.Height}");
@@ -65,16 +66,29 @@ namespace ManualImageRotator.NINA.Services {
                     var current = await imageSource.CaptureAsync(options.ExposureSeconds, ct);
                     var measurement = estimator.Measure(reference, current);
                     var measuredAngle = Normalize360(options.InitialAngle + measurement.AngleDegrees);
+                    var angleJump = Math.Abs(NormalizeSigned(measuredAngle - currentAngle));
 
-                    currentAngle = measuredAngle;
                     logger.Info(
                         $"Measurement angle={measurement.AngleDegrees:F3} position={currentAngle:F3} " +
                         $"delta={NormalizeSigned(options.TargetAngle - currentAngle):F3} " +
                         $"matched={measurement.MatchedStars} rms={measurement.RmsPixels:F3} " +
                         $"quality={measurement.Quality:F3} tx={measurement.TranslationX:F1} " +
                         $"ty={measurement.TranslationY:F1} scale={measurement.Scale:F4} refStars={Count(measurement.ReferenceStars)} " +
-                        $"curStars={Count(measurement.CurrentStars)}");
-                    Publish(options, currentAngle, measurement, "Moving");
+                        $"curStars={Count(measurement.CurrentStars)} jump={angleJump:F3}");
+
+                    var rejectionReason = GetRejectionReason(options, measurement, angleJump);
+                    if (rejectionReason != null) {
+                        logger.Warning(
+                            $"Measurement rejected reason={rejectionReason} candidate={measuredAngle:F3} " +
+                            $"lastAccepted={currentAngle:F3} jump={angleJump:F3} matched={measurement.MatchedStars} " +
+                            $"quality={measurement.Quality:F3}");
+                        Publish(options, currentAngle, measurement, $"Rejected - {rejectionReason}");
+                        await Task.Delay(options.RefreshInterval, ct);
+                        continue;
+                    }
+
+                    currentAngle = measuredAngle;
+                    Publish(options, currentAngle, measurement, "Accepted");
 
                     var delta = NormalizeSigned(options.TargetAngle - currentAngle);
                     if (Math.Abs(delta) <= options.ToleranceDegrees) {
@@ -117,6 +131,22 @@ namespace ManualImageRotator.NINA.Services {
             });
         }
 
+        private static string GetRejectionReason(ManualRotationOptions options, RotationMeasurement measurement, double angleJump) {
+            if (measurement.MatchedStars < options.MinimumMatchedStars) {
+                return "too few stars";
+            }
+
+            if (measurement.Quality < options.MinimumQuality) {
+                return "low quality";
+            }
+
+            if (angleJump > options.MaximumAngleJumpDegrees) {
+                return "angle jump";
+            }
+
+            return null;
+        }
+
         private static double Normalize360(double angle) {
             angle %= 360.0;
             if (angle < 0.0) {
@@ -145,7 +175,9 @@ namespace ManualImageRotator.NINA.Services {
         public double InitialAngle { get; set; }
         public double ToleranceDegrees { get; set; } = 0.25;
         public double ExposureSeconds { get; set; } = 3.0;
-        public double MinimumQuality { get; set; } = 0.35;
+        public double MinimumQuality { get; set; } = 0.25;
+        public int MinimumMatchedStars { get; set; } = 4;
+        public double MaximumAngleJumpDegrees { get; set; } = 60.0;
         public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(1);
     }
 

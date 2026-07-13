@@ -132,7 +132,19 @@ Chaque mesure produit :
 
 La qualite est affichee dans la fenetre de guidage comme indicateur visuel. Elle ne bloque pas la boucle de mesure : meme une qualite moyenne peut rester utilisable si le nombre d'etoiles matchees reste suffisant et si l'aiguille suit correctement le mouvement.
 
-### 5. Boucle de rotation
+### 5. Rejet d'une frame
+
+Avant qu'une nouvelle mesure puisse mettre a jour l'angle du rotateur, elle est verifiee avec trois regles de rejet :
+
+- `MatchedStars < MinimumMatchedStars` rejette les frames avec trop peu de correspondances fiables ;
+- `Quality < MinimumQuality` rejette les transformations peu fiables ;
+- `AngleJump > MaximumAngleJumpDegrees` rejette les sauts brusques depuis le dernier angle accepte.
+
+Quand une frame est rejetee, la fenetre de guidage affiche quand meme ses metriques et un status comme `Rejected - angle jump`, mais l'angle courant et l'aiguille bleue restent sur la derniere mesure acceptee. Cela evite les sauts visuels a 180 degres provoques par une mauvaise pose tout en rendant le rejet visible.
+
+Les frames acceptees affichent `Status: Accepted` et mettent normalement a jour l'angle courant.
+
+### 6. Boucle de rotation
 
 `ManualRotationSession` :
 
@@ -141,9 +153,10 @@ La qualite est affichee dans la fenetre de guidage comme indicateur visuel. Elle
 3. mesure l'angle relatif ;
 4. calcule `currentAngle = initialAngle + measuredRotation`;
 5. calcule `delta = targetAngle - currentAngle` normalise dans `[-180 deg, +180 deg]` ;
-6. publie l'etat vers le driver et la fenetre UI ;
-7. termine si `abs(delta) <= tolerance` ;
-8. attend l'intervalle configure puis recommence.
+6. rejette les frames instables ou accepte la mesure ;
+7. publie l'etat vers le driver et la fenetre UI ;
+8. termine si `abs(delta) <= tolerance` ;
+9. attend l'intervalle configure puis recommence.
 
 ## Reglages
 
@@ -162,10 +175,14 @@ Valeurs actuelles :
 | ToleranceDegrees | 0.25 deg | 0.01 a 10 deg |
 | CentralExclusionPercent | 20% | 0 a 80% |
 | DetectedStars | 16 | 3 a 100 |
+| MinimumQuality | 0.25 | 0 a 1 |
+| MinimumMatchedStars | 4 | 3 a DetectedStars |
+| MaximumAngleJumpDegrees | 60 deg | 1 a 180 deg |
 | Reverse | false | true/false |
 | DebugLogging | false | true/false |
 
 `Reverse` est pilote par le toggle natif N.I.N.A. du rotateur.
+`MinimumQuality`, `MinimumMatchedStars` et `MaximumAngleJumpDegrees` rejettent les mesures instables avant qu'elles ne mettent a jour l'angle affiche du rotateur.
 `DebugLogging` active les logs detailles de capture, mesure, qualite et synchronisation. Il reste desactive par defaut.
 
 ## Prerequis

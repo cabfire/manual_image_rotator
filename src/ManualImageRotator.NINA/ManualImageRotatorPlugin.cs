@@ -49,6 +49,28 @@ namespace ManualImageRotator.NINA {
             }
         }
 
+        public double MinimumQuality {
+            get => settings.MinimumQuality;
+            set => SetAndSave(value, v => settings.MinimumQuality = v);
+        }
+
+        public int MinimumMatchedStars {
+            get => settings.MinimumMatchedStars;
+            set {
+                if (settings.MinimumMatchedStars == value) {
+                    return;
+                }
+
+                settings.MinimumMatchedStars = value;
+                SaveAndNotify();
+            }
+        }
+
+        public double MaximumAngleJumpDegrees {
+            get => settings.MaximumAngleJumpDegrees;
+            set => SetAndSave(value, v => settings.MaximumAngleJumpDegrees = v);
+        }
+
         public bool DebugLogging {
             get => settings.DebugLogging;
             set {
@@ -83,6 +105,9 @@ namespace ManualImageRotator.NINA {
             OnPropertyChanged(nameof(ToleranceDegrees));
             OnPropertyChanged(nameof(CentralExclusionPercent));
             OnPropertyChanged(nameof(DetectedStars));
+            OnPropertyChanged(nameof(MinimumQuality));
+            OnPropertyChanged(nameof(MinimumMatchedStars));
+            OnPropertyChanged(nameof(MaximumAngleJumpDegrees));
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null) {

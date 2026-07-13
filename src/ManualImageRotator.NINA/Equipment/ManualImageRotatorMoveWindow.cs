@@ -12,6 +12,7 @@ namespace ManualImageRotator.NINA.Equipment {
         private readonly TextBlock deltaTextBlock;
         private readonly TextBlock directionTextBlock;
         private readonly TextBlock statusTextBlock;
+        private readonly TextBlock statusValueTextBlock;
         private readonly TextBlock matchedStarsValueTextBlock;
         private readonly TextBlock qualityValueTextBlock;
         private readonly Button actionButton;
@@ -157,7 +158,22 @@ namespace ManualImageRotator.NINA.Equipment {
             bottom.Children.Add(metricsPanel);
 
             metricsPanel.Children.Add(new TextBlock {
-                Text = "Matched Stars: ",
+                Text = "Status: ",
+                FontSize = 14,
+                Foreground = mutedBrush,
+                VerticalAlignment = VerticalAlignment.Center
+            });
+
+            statusValueTextBlock = new TextBlock {
+                Text = "--",
+                FontSize = 14,
+                Foreground = mutedBrush,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            metricsPanel.Children.Add(statusValueTextBlock);
+
+            metricsPanel.Children.Add(new TextBlock {
+                Text = "    Matched Stars: ",
                 FontSize = 14,
                 Foreground = mutedBrush,
                 VerticalAlignment = VerticalAlignment.Center
@@ -228,8 +244,11 @@ namespace ManualImageRotator.NINA.Equipment {
             deltaTextBlock.Text = FormatAngle(Math.Abs(delta));
             directionTextBlock.Text = delta >= 0.0 ? "Clockwise" : "Anticlockwise";
             statusTextBlock.Text = status ?? string.Empty;
-            statusTextBlock.Foreground = targetReached ? reachedBrush : mutedBrush;
+            statusTextBlock.Foreground = StatusBrush(status, targetReached);
+            statusValueTextBlock.Text = FormatStatus(status);
+            statusValueTextBlock.Foreground = StatusBrush(status, targetReached);
             matchedStarsValueTextBlock.Text = FormatMatchedStars(matchedStars);
+            matchedStarsValueTextBlock.Foreground = MatchedStarsBrush(matchedStars);
             qualityValueTextBlock.Text = FormatQuality(quality);
             qualityValueTextBlock.Foreground = QualityBrush(quality);
             actionButton.Content = "OK";
@@ -276,6 +295,44 @@ namespace ManualImageRotator.NINA.Equipment {
             }
 
             return badBrush;
+        }
+
+        private Brush MatchedStarsBrush(int matchedStars) {
+            if (matchedStars <= 0) {
+                return mutedBrush;
+            }
+
+            if (matchedStars >= 8) {
+                return reachedBrush;
+            }
+
+            if (matchedStars >= 4) {
+                return warningBrush;
+            }
+
+            return badBrush;
+        }
+
+        private string FormatStatus(string status) {
+            return string.IsNullOrWhiteSpace(status) ? "--" : status;
+        }
+
+        private Brush StatusBrush(string status, bool targetReached) {
+            if (targetReached) {
+                return reachedBrush;
+            }
+
+            if (!string.IsNullOrEmpty(status) &&
+                status.StartsWith("Rejected", StringComparison.OrdinalIgnoreCase)) {
+                return badBrush;
+            }
+
+            if (!string.IsNullOrEmpty(status) &&
+                status.StartsWith("Accepted", StringComparison.OrdinalIgnoreCase)) {
+                return reachedBrush;
+            }
+
+            return mutedBrush;
         }
 
         private void OnActionButtonClick(object sender, RoutedEventArgs e) {

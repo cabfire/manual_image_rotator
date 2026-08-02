@@ -43,7 +43,7 @@ namespace ManualImageRotator.NINA.Equipment {
         public bool Connected => connected;
         public string Description => "Guided manual camera rotation using live image measurements.";
         public string DriverInfo => "Manual Image Rotator for N.I.N.A.";
-        public string DriverVersion => "0.3.0";
+        public string DriverVersion => "0.4.0";
         public IList<string> SupportedActions => new List<string>();
 
         public bool CanReverse => true;

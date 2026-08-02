@@ -256,7 +256,10 @@ namespace ManualImageRotator.NINA.Equipment {
                 state.FrameWidth,
                 state.FrameHeight,
                 state.CentralExclusionRatio,
-                state.CurrentStars);
+                state.CurrentStars,
+                state.MotionInstruction,
+                state.MotionRemainingSeconds,
+                state.MotionTotalSeconds);
         }
 
         private void SetMeasuredPosition(float value) {
@@ -371,7 +374,7 @@ namespace ManualImageRotator.NINA.Equipment {
                         moveWindow = null;
                     }
                 };
-                moveWindow.Update(currentPosition, targetPosition, status, false);
+                moveWindow.Update(currentPosition, targetPosition, status, false, "DON'T MOVE", double.NaN, double.NaN);
                 moveWindow.Show();
             }));
         }
@@ -391,7 +394,10 @@ namespace ManualImageRotator.NINA.Equipment {
                 0,
                 0,
                 0,
-                null);
+                null,
+                null,
+                double.NaN,
+                double.NaN);
         }
 
         private void UpdateMoveWindow(
@@ -408,7 +414,10 @@ namespace ManualImageRotator.NINA.Equipment {
             int frameWidth,
             int frameHeight,
             double centralExclusionRatio,
-            IReadOnlyList<StarCentroid> currentStars) {
+            IReadOnlyList<StarCentroid> currentStars,
+            string motionInstruction,
+            double motionRemainingSeconds,
+            double motionTotalSeconds) {
             var dispatcher = System.Windows.Application.Current?.Dispatcher;
             if (dispatcher == null) {
                 return;
@@ -429,7 +438,10 @@ namespace ManualImageRotator.NINA.Equipment {
                     frameWidth,
                     frameHeight,
                     centralExclusionRatio,
-                    currentStars);
+                    currentStars,
+                    motionInstruction,
+                    motionRemainingSeconds,
+                    motionTotalSeconds);
             }));
         }
 

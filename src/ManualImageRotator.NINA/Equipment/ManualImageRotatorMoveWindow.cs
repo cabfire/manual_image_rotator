@@ -203,8 +203,9 @@ namespace ManualImageRotator.NINA.Equipment {
             canvas.Children.Add(directionTextBlock);
 
             statusTextBlock = new TextBlock {
-                FontSize = 14,
+                FontSize = 18,
                 Foreground = mutedBrush,
+                FontWeight = FontWeights.SemiBold,
                 TextAlignment = TextAlignment.Center
             };
             canvas.Children.Add(statusTextBlock);
@@ -330,7 +331,35 @@ namespace ManualImageRotator.NINA.Equipment {
         }
 
         public void Update(double currentPosition, double targetPosition, string status, bool targetReached) {
-            Update(currentPosition, targetPosition, status, targetReached, 0, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN, 0, 0, 0, null);
+            Update(currentPosition, targetPosition, status, targetReached, null, double.NaN, double.NaN);
+        }
+
+        public void Update(
+            double currentPosition,
+            double targetPosition,
+            string status,
+            bool targetReached,
+            string motionInstruction,
+            double motionRemainingSeconds,
+            double motionTotalSeconds) {
+            Update(
+                currentPosition,
+                targetPosition,
+                status,
+                targetReached,
+                0,
+                double.NaN,
+                double.NaN,
+                double.NaN,
+                double.NaN,
+                double.NaN,
+                0,
+                0,
+                0,
+                null,
+                motionInstruction,
+                motionRemainingSeconds,
+                motionTotalSeconds);
         }
 
         public void Update(
@@ -347,7 +376,10 @@ namespace ManualImageRotator.NINA.Equipment {
             int frameWidth,
             int frameHeight,
             double centralExclusionRatio,
-            IReadOnlyList<StarCentroid> currentStars) {
+            IReadOnlyList<StarCentroid> currentStars,
+            string motionInstruction,
+            double motionRemainingSeconds,
+            double motionTotalSeconds) {
             var current = Normalize360(currentPosition);
             var target = Normalize360(targetPosition);
             var delta = NormalizeSigned(target - current);
@@ -357,8 +389,8 @@ namespace ManualImageRotator.NINA.Equipment {
             targetPositionTextBlock.Text = FormatAngle(target);
             deltaTextBlock.Text = FormatAngle(Math.Abs(delta));
             directionTextBlock.Text = delta >= 0.0 ? "Clockwise" : "Anticlockwise";
-            statusTextBlock.Text = status ?? string.Empty;
-            statusTextBlock.Foreground = StatusBrush(status, targetReached);
+            statusTextBlock.Text = FormatMotionInstruction(motionInstruction, status, motionRemainingSeconds, motionTotalSeconds);
+            statusTextBlock.Foreground = MotionInstructionBrush(motionInstruction, status, targetReached);
             statusValueTextBlock.Text = FormatStatus(status);
             statusValueTextBlock.Foreground = StatusBrush(status, targetReached);
             matchedStarsValueTextBlock.Text = FormatMatchedStars(matchedStars);
@@ -389,6 +421,52 @@ namespace ManualImageRotator.NINA.Equipment {
 
         public void Update(double currentPosition, double targetPosition, string status) {
             Update(currentPosition, targetPosition, status, false);
+        }
+
+        private string FormatMotionInstruction(
+            string motionInstruction,
+            string status,
+            double motionRemainingSeconds,
+            double motionTotalSeconds) {
+            if (!string.IsNullOrWhiteSpace(motionInstruction)) {
+                var label = motionInstruction;
+                if (motionInstruction.StartsWith("DON'T", StringComparison.OrdinalIgnoreCase)) {
+                    label = "⛔ DON'T MOVE";
+                } else if (motionInstruction.StartsWith("TURN", StringComparison.OrdinalIgnoreCase)) {
+                    label = "✅ TURN CAMERA";
+                }
+
+                if (!double.IsNaN(motionRemainingSeconds) &&
+                    !double.IsInfinity(motionRemainingSeconds) &&
+                    !double.IsNaN(motionTotalSeconds) &&
+                    !double.IsInfinity(motionTotalSeconds) &&
+                    motionTotalSeconds > 0.0) {
+                    return string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0}: {1:0.00} / {2:0.00} sec",
+                        label,
+                        Math.Max(0.0, motionRemainingSeconds),
+                        motionTotalSeconds);
+                }
+
+                return label;
+            }
+
+            return status ?? string.Empty;
+        }
+
+        private Brush MotionInstructionBrush(string motionInstruction, string status, bool targetReached) {
+            if (!string.IsNullOrWhiteSpace(motionInstruction)) {
+                if (motionInstruction.StartsWith("DON'T", StringComparison.OrdinalIgnoreCase)) {
+                    return warningBrush;
+                }
+
+                if (motionInstruction.StartsWith("TURN", StringComparison.OrdinalIgnoreCase)) {
+                    return measuredBrush;
+                }
+            }
+
+            return StatusBrush(status, targetReached);
         }
 
         private string FormatMatchedStars(int matchedStars) {

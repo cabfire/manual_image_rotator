@@ -1,5 +1,6 @@
 using ManualImageRotator.NINA.Imaging;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,6 +28,8 @@ namespace ManualImageRotator.NINA.Services {
     }
 
     public sealed class ManualRotationSession {
+        private const int MotionTickMilliseconds = 100;
+
         private readonly IRotationImageSource imageSource;
         private readonly RotationEstimator estimator;
         private readonly IManualRotationLogger logger;
@@ -51,6 +54,8 @@ namespace ManualImageRotator.NINA.Services {
             cancelSource = CancellationTokenSource.CreateLinkedTokenSource(token);
             var ct = cancelSource.Token;
             var currentAngle = options.InitialAngle;
+            RotationMeasurement lastMeasurement = null;
+            var lastStatus = "Capturing reference";
 
             try {
                 logger.Info(
@@ -59,12 +64,28 @@ namespace ManualImageRotator.NINA.Services {
                     $"refresh={options.RefreshInterval.TotalSeconds:F3}s minQuality={options.MinimumQuality:F3} " +
                     $"minMatched={options.MinimumMatchedStars} maxJump={options.MaximumAngleJumpDegrees:F3}");
 
-                var reference = await imageSource.CaptureAsync(options.ExposureSeconds, ct);
+                var reference = await CaptureWithInstructionAsync(
+                    options,
+                    currentAngle,
+                    lastMeasurement,
+                    lastStatus,
+                    "DON'T MOVE",
+                    ct);
                 logger.Info($"Reference frame captured width={reference.Width} height={reference.Height}");
+                lastStatus = "Reference captured";
+                await DelayWithInstructionAsync(options, currentAngle, lastMeasurement, lastStatus, "TURN CAMERA", ct);
+                lastStatus = "Capturing frame";
 
                 while (!ct.IsCancellationRequested) {
-                    var current = await imageSource.CaptureAsync(options.ExposureSeconds, ct);
+                    var current = await CaptureWithInstructionAsync(
+                        options,
+                        currentAngle,
+                        lastMeasurement,
+                        lastStatus,
+                        "DON'T MOVE",
+                        ct);
                     var measurement = estimator.Measure(reference, current);
+                    lastMeasurement = measurement;
                     var measuredAngle = Normalize360(options.InitialAngle + measurement.AngleDegrees);
                     var angleJump = Math.Abs(NormalizeSigned(measuredAngle - currentAngle));
 
@@ -82,23 +103,24 @@ namespace ManualImageRotator.NINA.Services {
                             $"Measurement rejected reason={rejectionReason} candidate={measuredAngle:F3} " +
                             $"lastAccepted={currentAngle:F3} jump={angleJump:F3} matched={measurement.MatchedStars} " +
                             $"quality={measurement.Quality:F3}");
-                        Publish(options, currentAngle, measurement, $"Rejected - {rejectionReason}");
-                        await Task.Delay(options.RefreshInterval, ct);
+                        lastStatus = $"Rejected - {rejectionReason}";
+                        await DelayWithInstructionAsync(options, currentAngle, measurement, lastStatus, "TURN CAMERA", ct);
                         continue;
                     }
 
                     currentAngle = measuredAngle;
-                    Publish(options, currentAngle, measurement, "Accepted");
 
                     var delta = NormalizeSigned(options.TargetAngle - currentAngle);
                     if (Math.Abs(delta) <= options.ToleranceDegrees) {
                         logger.Info(
                             $"Target reached position={currentAngle:F3} target={options.TargetAngle:F3} delta={delta:F3}");
-                        Publish(options, currentAngle, measurement, "Target reached");
+                        lastStatus = "Target reached";
+                        Publish(options, currentAngle, measurement, lastStatus, string.Empty, double.NaN, double.NaN);
                         return ManualRotationResult.Reached(currentAngle);
                     }
 
-                    await Task.Delay(options.RefreshInterval, ct);
+                    lastStatus = "Accepted";
+                    await DelayWithInstructionAsync(options, currentAngle, measurement, lastStatus, "TURN CAMERA", ct);
                 }
             } catch (OperationCanceledException) {
                 logger.Info($"Session cancelled position={currentAngle:F3}");
@@ -115,23 +137,92 @@ namespace ManualImageRotator.NINA.Services {
             cancelSource?.Cancel();
         }
 
-        private void Publish(ManualRotationOptions options, double currentAngle, RotationMeasurement measurement, string status) {
+        private async Task<RotationFrame> CaptureWithInstructionAsync(
+            ManualRotationOptions options,
+            double currentAngle,
+            RotationMeasurement measurement,
+            string status,
+            string motionInstruction,
+            CancellationToken ct) {
+            var total = TimeSpan.FromSeconds(Math.Max(0.0, options.ExposureSeconds));
+            var captureTask = imageSource.CaptureAsync(options.ExposureSeconds, ct);
+            await PublishCountdownUntilAsync(options, currentAngle, measurement, status, motionInstruction, total, captureTask, ct);
+            return await captureTask;
+        }
+
+        private async Task DelayWithInstructionAsync(
+            ManualRotationOptions options,
+            double currentAngle,
+            RotationMeasurement measurement,
+            string status,
+            string motionInstruction,
+            CancellationToken ct) {
+            var totalSeconds = Math.Max(0.0, options.RefreshInterval.TotalSeconds);
+            var stopwatch = Stopwatch.StartNew();
+
+            while (stopwatch.Elapsed.TotalSeconds < totalSeconds) {
+                var remainingSeconds = Math.Max(0.0, totalSeconds - stopwatch.Elapsed.TotalSeconds);
+                Publish(options, currentAngle, measurement, status, motionInstruction, remainingSeconds, totalSeconds);
+                var delay = TimeSpan.FromMilliseconds(Math.Min(MotionTickMilliseconds, remainingSeconds * 1000.0));
+                if (delay <= TimeSpan.Zero) {
+                    break;
+                }
+
+                await Task.Delay(delay, ct);
+            }
+        }
+
+        private async Task PublishCountdownUntilAsync(
+            ManualRotationOptions options,
+            double currentAngle,
+            RotationMeasurement measurement,
+            string status,
+            string motionInstruction,
+            TimeSpan total,
+            Task trackedTask,
+            CancellationToken ct) {
+            var totalSeconds = Math.Max(0.0, total.TotalSeconds);
+            var stopwatch = Stopwatch.StartNew();
+
+            while (!trackedTask.IsCompleted) {
+                var remainingSeconds = Math.Max(0.0, totalSeconds - stopwatch.Elapsed.TotalSeconds);
+                Publish(options, currentAngle, measurement, status, motionInstruction, remainingSeconds, totalSeconds);
+
+                var delayTask = Task.Delay(MotionTickMilliseconds, ct);
+                var completedTask = await Task.WhenAny(trackedTask, delayTask);
+                if (completedTask == trackedTask) {
+                    break;
+                }
+            }
+        }
+
+        private void Publish(
+            ManualRotationOptions options,
+            double currentAngle,
+            RotationMeasurement measurement,
+            string status,
+            string motionInstruction,
+            double motionRemainingSeconds,
+            double motionTotalSeconds) {
             StateChanged?.Invoke(this, new ManualRotationState {
                 TargetAngle = options.TargetAngle,
                 CurrentAngle = currentAngle,
                 Delta = NormalizeSigned(options.TargetAngle - currentAngle),
                 Direction = NormalizeSigned(options.TargetAngle - currentAngle) >= 0 ? "Clockwise" : "Anti-clockwise",
-                MatchedStars = measurement.MatchedStars,
-                RmsPixels = measurement.RmsPixels,
-                Quality = measurement.Quality,
-                TranslationX = measurement.TranslationX,
-                TranslationY = measurement.TranslationY,
-                Scale = measurement.Scale,
-                FrameWidth = measurement.FrameWidth,
-                FrameHeight = measurement.FrameHeight,
+                MatchedStars = measurement?.MatchedStars ?? 0,
+                RmsPixels = measurement?.RmsPixels ?? double.NaN,
+                Quality = measurement?.Quality ?? double.NaN,
+                TranslationX = measurement?.TranslationX ?? double.NaN,
+                TranslationY = measurement?.TranslationY ?? double.NaN,
+                Scale = measurement?.Scale ?? 1.0,
+                FrameWidth = measurement?.FrameWidth ?? 0,
+                FrameHeight = measurement?.FrameHeight ?? 0,
                 CentralExclusionRatio = options.CentralExclusionRatio,
-                CurrentStars = measurement.CurrentStars,
-                Status = status
+                CurrentStars = measurement?.CurrentStars,
+                Status = status,
+                MotionInstruction = motionInstruction,
+                MotionRemainingSeconds = motionRemainingSeconds,
+                MotionTotalSeconds = motionTotalSeconds
             });
         }
 
@@ -202,6 +293,9 @@ namespace ManualImageRotator.NINA.Services {
         public double CentralExclusionRatio { get; set; }
         public System.Collections.Generic.IReadOnlyList<StarCentroid> CurrentStars { get; set; }
         public string Status { get; set; }
+        public string MotionInstruction { get; set; }
+        public double MotionRemainingSeconds { get; set; } = double.NaN;
+        public double MotionTotalSeconds { get; set; } = double.NaN;
     }
 
     public sealed class ManualRotationResult {

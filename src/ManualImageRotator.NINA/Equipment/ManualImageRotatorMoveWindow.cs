@@ -14,6 +14,8 @@ namespace ManualImageRotator.NINA.Equipment {
         private readonly TextBlock deltaTextBlock;
         private readonly TextBlock directionTextBlock;
         private readonly TextBlock statusTextBlock;
+        private readonly Border motionGaugeTrack;
+        private readonly Border motionGaugeFill;
         private readonly TextBlock statusValueTextBlock;
         private readonly TextBlock matchedStarsValueTextBlock;
         private readonly TextBlock qualityValueTextBlock;
@@ -210,6 +212,24 @@ namespace ManualImageRotator.NINA.Equipment {
             };
             canvas.Children.Add(statusTextBlock);
 
+            motionGaugeTrack = new Border {
+                Width = 240,
+                Height = 6,
+                Background = Brush(50, 54, 62),
+                CornerRadius = new CornerRadius(3),
+                Visibility = Visibility.Hidden
+            };
+            canvas.Children.Add(motionGaugeTrack);
+
+            motionGaugeFill = new Border {
+                Width = 0,
+                Height = 6,
+                Background = measuredBrush,
+                CornerRadius = new CornerRadius(3),
+                Visibility = Visibility.Hidden
+            };
+            canvas.Children.Add(motionGaugeFill);
+
             canvas.SizeChanged += (sender, args) => LayoutAngleCanvas(canvas);
 
             var bottomHorizontalSeparator = new Border {
@@ -391,6 +411,7 @@ namespace ManualImageRotator.NINA.Equipment {
             directionTextBlock.Text = delta >= 0.0 ? "Clockwise" : "Anticlockwise";
             statusTextBlock.Text = FormatMotionInstruction(motionInstruction, status, motionRemainingSeconds, motionTotalSeconds);
             statusTextBlock.Foreground = MotionInstructionBrush(motionInstruction, status, targetReached);
+            UpdateMotionGauge(motionInstruction, motionRemainingSeconds, motionTotalSeconds);
             statusValueTextBlock.Text = FormatStatus(status);
             statusValueTextBlock.Foreground = StatusBrush(status, targetReached);
             matchedStarsValueTextBlock.Text = FormatMatchedStars(matchedStars);
@@ -436,17 +457,12 @@ namespace ManualImageRotator.NINA.Equipment {
                     label = "✅ TURN CAMERA";
                 }
 
-                if (!double.IsNaN(motionRemainingSeconds) &&
-                    !double.IsInfinity(motionRemainingSeconds) &&
-                    !double.IsNaN(motionTotalSeconds) &&
-                    !double.IsInfinity(motionTotalSeconds) &&
-                    motionTotalSeconds > 0.0) {
-                    return string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0}: {1:0.00} / {2:0.00} sec",
-                        label,
-                        Math.Max(0.0, motionRemainingSeconds),
-                        motionTotalSeconds);
+                if (motionInstruction.StartsWith("DON'T", StringComparison.OrdinalIgnoreCase)) {
+                    return "\u26D4 DON'T MOVE";
+                }
+
+                if (motionInstruction.StartsWith("TURN", StringComparison.OrdinalIgnoreCase)) {
+                    return "\u2705 TURN CAMERA";
                 }
 
                 return label;
@@ -467,6 +483,28 @@ namespace ManualImageRotator.NINA.Equipment {
             }
 
             return StatusBrush(status, targetReached);
+        }
+
+        private void UpdateMotionGauge(string motionInstruction, double motionRemainingSeconds, double motionTotalSeconds) {
+            if (string.IsNullOrWhiteSpace(motionInstruction) ||
+                double.IsNaN(motionRemainingSeconds) ||
+                double.IsInfinity(motionRemainingSeconds) ||
+                double.IsNaN(motionTotalSeconds) ||
+                double.IsInfinity(motionTotalSeconds) ||
+                motionTotalSeconds <= 0.0) {
+                motionGaugeTrack.Visibility = Visibility.Hidden;
+                motionGaugeFill.Visibility = Visibility.Hidden;
+                motionGaugeFill.Width = 0.0;
+                return;
+            }
+
+            var fraction = Math.Max(0.0, Math.Min(1.0, motionRemainingSeconds / motionTotalSeconds));
+            motionGaugeTrack.Visibility = Visibility.Visible;
+            motionGaugeFill.Visibility = Visibility.Visible;
+            motionGaugeFill.Width = motionGaugeTrack.Width * fraction;
+            motionGaugeFill.Background = motionInstruction.StartsWith("DON'T", StringComparison.OrdinalIgnoreCase)
+                ? warningBrush
+                : measuredBrush;
         }
 
         private string FormatMatchedStars(int matchedStars) {
@@ -701,6 +739,11 @@ namespace ManualImageRotator.NINA.Equipment {
             Canvas.SetLeft(statusTextBlock, centerX - 180.0);
             Canvas.SetTop(statusTextBlock, centerY + 188.0);
             statusTextBlock.Width = 360.0;
+
+            Canvas.SetLeft(motionGaugeTrack, centerX - (motionGaugeTrack.Width / 2.0));
+            Canvas.SetTop(motionGaugeTrack, centerY + 218.0);
+            Canvas.SetLeft(motionGaugeFill, centerX - (motionGaugeTrack.Width / 2.0));
+            Canvas.SetTop(motionGaugeFill, centerY + 218.0);
 
             LayoutDirectionArrows(canvas, centerX, centerY);
             UpdateNeedle(measuredNeedle, ExtractNeedleAngle(measuredNeedle), 84.0);

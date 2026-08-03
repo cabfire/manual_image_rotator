@@ -28,7 +28,7 @@ namespace ManualImageRotator.NINA.Services {
     }
 
     public sealed class ManualRotationSession {
-        private const int MotionTickMilliseconds = 100;
+        private const int MotionTickMilliseconds = 500;
 
         private readonly IRotationImageSource imageSource;
         private readonly RotationEstimator estimator;
@@ -72,7 +72,13 @@ namespace ManualImageRotator.NINA.Services {
                     "DON'T MOVE",
                     ct);
                 logger.Info($"Reference frame captured width={reference.Width} height={reference.Height}");
-                lastStatus = "Reference captured";
+                lastMeasurement = estimator.Measure(reference, reference);
+                var referenceRejectionReason = GetRejectionReason(options, lastMeasurement, 0.0);
+                lastStatus = referenceRejectionReason == null ? "Accepted" : $"Rejected - {referenceRejectionReason}";
+                logger.Info(
+                    $"Reference measurement matched={lastMeasurement.MatchedStars} rms={lastMeasurement.RmsPixels:F3} " +
+                    $"quality={lastMeasurement.Quality:F3} refStars={Count(lastMeasurement.ReferenceStars)} " +
+                    $"curStars={Count(lastMeasurement.CurrentStars)}");
                 await DelayWithInstructionAsync(options, currentAngle, lastMeasurement, lastStatus, "TURN CAMERA", ct);
                 lastStatus = "Capturing frame";
 
